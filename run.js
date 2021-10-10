@@ -3,7 +3,7 @@ const { LinkedInProfileScraper } = require('linkedin-profile-scraper');
 
 (async () => {
     const scraper = new LinkedInProfileScraper({
-        sessionCookieValue: 'AQEDATVRtXUFNTdpAAABfAz7VgsAAAF8fV4gF00ADwKjzSgyoUSMirkJ_doPYxC0F-ifv8mcmhryDWLVxDc9haFhGQsOEa-VOo17bVN9rxyeu0_ca68PBuQ32LDL2DHlOe6zsgw9bJiNM5A5yeScjgZO',
+        sessionCookieValue: 'li_at from cookies',
         keepAlive: false
     });
 
