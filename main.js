@@ -1,7 +1,7 @@
 const { LinkedInProfileScraper } = require('linkedin-profile-scraper');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-
+//https://stackoverflow.com/questions/55678095/bypassing-captchas-with-headless-chrome-using-puppeteer
 // Prepare the scraper
 // Loading it in memory
 
@@ -15,7 +15,7 @@ const fs = require('fs');
     await page.setCookie({
         url: "https://www.linkedin.com",
         name: 'li_at',
-        value: 'AQEDATVRtXUC46DyAAABfGq6KdUAAAF8jsat1VYArrnEv301Dw5Wpli9YisDa0_ZPKQb_xuUgkN0XKLrgkHMKLDRpXnINYZ7doRAO4N5BwKlYI1fIDIwSFZJFLcaPKfG7ueq35QK2r1mVixM__27JD78'
+        value: ''
     })
     await page.goto('https://www.google.com/', { timeout: 60 * 1000 });
     await page.waitForSelector('input[name="q"]')
@@ -32,7 +32,7 @@ const fs = require('fs');
     console.log(profileLinks.length)
     console.log(profileLinks)
     const scraper = new LinkedInProfileScraper({
-        sessionCookieValue: 'AQEDATVRtXUC46DyAAABfGq6KdUAAAF8jsat1VYArrnEv301Dw5Wpli9YisDa0_ZPKQb_xuUgkN0XKLrgkHMKLDRpXnINYZ7doRAO4N5BwKlYI1fIDIwSFZJFLcaPKfG7ueq35QK2r1mVixM__27JD78',
+        sessionCookieValue: '',
         keepAlive: false
     });
     await scraper.setup()
