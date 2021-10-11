@@ -2,11 +2,12 @@ const { LinkedInProfileScraper } = require('linkedin-profile-scraper');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-
-const query = 'site:linkedin.com/in/ AND "javascript developer" AND "BRAC University"'
-const countryCode = "bd"; //two letter country code
-const profileMaxCount = 12;   // number of profiles to scrape
+const timeout = 60 * 1000;      //  request timeout       
+const countryCode = "bd";       //  two letter country code
+const profileMaxCount = 12;     //  maximum number of profiles to scrape
 const sessionCookieValue = '';
+const query = 'site:linkedin.com/in/ AND "javascript developer" AND "BRAC University"';
+
 // Prepare the scraper
 // Loading it in memory
 
@@ -15,7 +16,7 @@ const sessionCookieValue = '';
         headless: true,
     });
     const page = await browser.newPage();
-    await page.goto('https://www.google.com/', { timeout: 60 * 1000 });
+    await page.goto('https://www.google.com/', { timeout: timeout });
     await page.waitForSelector('input[name="q"]')
     await page.type('input[name="q"]', query);
     await page.keyboard.press('Enter');
@@ -40,7 +41,7 @@ const sessionCookieValue = '';
     const scraper = new LinkedInProfileScraper({
         sessionCookieValue: sessionCookieValue,
         keepAlive: true,
-        timeout: 60 * 1000
+        timeout: timeout
     });
     const saveDir = path.join(__dirname, "profiles", "")
     if (!fs.existsSync(saveDir)) {
