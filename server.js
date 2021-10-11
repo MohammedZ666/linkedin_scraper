@@ -39,15 +39,16 @@ const sessionCookieValue = '';
     console.log("Profile links => ", profileLinks)
     const scraper = new LinkedInProfileScraper({
         sessionCookieValue: sessionCookieValue,
-        keepAlive: false
+        keepAlive: true,
+        timeout: 60 * 1000
     });
     const saveDir = path.join(__dirname, "profiles", "")
     if (!fs.existsSync(saveDir)) {
         fs.mkdirSync('profiles', { recursive: true });
     }
-
+    await scraper.setup()
     for (let i = 0; i < profileLinks.length; i++) {
-        await scraper.setup()
+
         let link = profileLinks[i];
         link = link.replace(countryCode, "www")
         let profileJson;
