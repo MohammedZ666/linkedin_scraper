@@ -5,8 +5,8 @@ const path = require('path');
 
 const query = 'site:linkedin.com/in/ AND "javascript developer" AND "BRAC University"'
 const countryCode = "bd"; //two letter country code
-const profileMaxCount = 12;   // no of google search pages to scrape
-const sessionCookieValue = '';
+const profileMaxCount = 12;   // number of profiles to scrape
+const sessionCookieValue = 'AQEDATVRtXUC46DyAAABfGq6KdUAAAF8jsat1VYArrnEv301Dw5Wpli9YisDa0_ZPKQb_xuUgkN0XKLrgkHMKLDRpXnINYZ7doRAO4N5BwKlYI1fIDIwSFZJFLcaPKfG7ueq35QK2r1mVixM__27JD78';
 // Prepare the scraper
 // Loading it in memory
 
