@@ -1,21 +1,27 @@
 const { LinkedInProfileScraper } = require('linkedin-profile-scraper');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
 const fs = require('fs');
 const path = require('path');
 const timeout = 60 * 1000;      //  request timeout       
 const countryCode = "www";       //  two letter country code
-const profileMaxCount = 1;     //  maximum number of profiles to scrape
+const profileMaxCount = 10;     //  maximum number of profiles to scrape
 const sessionCookieValue = '';
 const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
 
 // Prepare the scraper
 // Loading it in memory
 
+// Software Engineer, Web developer, Recruiters, Data Scientists, Machine Learning Engineer, Human Resource Executive, Director, Legal Advisor, Information Security, Deputy Manager, App developer, Office Assistant, Librarian, Sales Manager, Graphic Designer, Product Manager, Public Relations Copywriter, SEO Brand Strategist, Marketing, DevOps Engineer, Network Administrator, Real Estate, Civil Engineer, Mechanical Engineer, Electrical Engineer, Chemical Engineer, Maintenance Engineer, Interior Designer, Medical Writer
+
 (async () => {
+    var userAgent = require('user-agents');
+    const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+    puppeteer.use(StealthPlugin())
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
     });
     const page = await browser.newPage();
+    await page.setUserAgent(userAgent.toString())
     await page.goto('https://www.google.com/', { timeout: timeout });
     await page.waitForSelector('input[name="q"]')
     await page.type('input[name="q"]', query);
@@ -23,11 +29,16 @@ const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
     const profileLinks = [];
     let profileScraped = 0;
     while (profileScraped < profileMaxCount) {
+
         await page.waitForSelector(`a[href^="https://${countryCode}.linkedin.com/in/"]`)
         let currentLinks = await page.$$eval(`a[href^="https://${countryCode}.linkedin.com/in/"]`, el => el.map(x => x.getAttribute("href")))
         profileLinks.push(...currentLinks);
         profileScraped += currentLinks.length;
-        await page.click("#pnnext")
+        try {
+            await page.click("#pnnext")
+        } catch (error) {
+            break;
+        }
     }
     console.log("Total profiles scraped => ", profileScraped)
     //Deleting excess links

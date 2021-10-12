@@ -5,7 +5,10 @@
   "main": "server.js",
   "dependencies": {
     "linkedin-profile-scraper": "^2.3.1",
-    "puppeteer": "^10.4.0"
+    "puppeteer": "^10.4.0",
+    "puppeteer-extra": "^3.2.3",
+    "puppeteer-extra-plugin-stealth": "^2.8.2",
+    "user-agents": "^1.0.802"
   },
   "devDependencies": {},
   "scripts": {
