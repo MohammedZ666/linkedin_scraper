@@ -5,7 +5,7 @@ const path = require('path');
 const timeout = 60 * 1000;      //  request timeout       
 const countryCode = "www";       //  two letter country code
 const profileMaxCount = 1;     //  maximum number of profiles to scrape
-const sessionCookieValue = 'AQEDATgdkNUEKLlIAAABfHKZ3VUAAAF8lqZhVVYARKmilJUjZjvs31Z8NjbkglT5S9vS6rXs8y5hK_4w-XPJE7uY4ta1ERehuR3UEQRuo9ky0ovRNypghYqlOc0r2d2_rcxVOY0sTEjF9e6A-w1jnGGh';
+const sessionCookieValue = '';
 const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
 
 // Prepare the scraper

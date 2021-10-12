@@ -1,0 +1,86 @@
+diff --git a/node_modules/linkedin-profile-scraper/dist/index.js b/node_modules/linkedin-profile-scraper/dist/index.js
+index 1327f41..062aa88 100644
+--- a/node_modules/linkedin-profile-scraper/dist/index.js
++++ b/node_modules/linkedin-profile-scraper/dist/index.js
+@@ -287,26 +287,33 @@ class LinkedInProfileScraper {
+                 const rawUserProfileData = yield page.evaluate(() => {
+                     const profileSection = document.querySelector('.pv-top-card');
+                     const url = window.location.href;
+-                    const fullNameElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('.pv-top-card--list li:first-child');
++                    const fullNameElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('h1[class="text-heading-xlarge inline t-24 v-align-middle break-words"]');
+                     const fullName = (fullNameElement === null || fullNameElement === void 0 ? void 0 : fullNameElement.textContent) || null;
+-                    const titleElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('h2');
++                    const titleElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('div[class="text-body-medium break-words"]');
+                     const title = (titleElement === null || titleElement === void 0 ? void 0 : titleElement.textContent) || null;
+-                    const locationElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('.pv-top-card--list.pv-top-card--list-bullet.mt1 li:first-child');
++                    const locationElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('span[class="text-body-small inline t-black--light break-words"]');
+                     const location = (locationElement === null || locationElement === void 0 ? void 0 : locationElement.textContent) || null;
+-                    const photoElement = (profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('.pv-top-card__photo')) || (profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('.profile-photo-edit__preview'));
++                    const photoElement = (profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('.pv-top-card-profile-picture__image'));
+                     const photo = (photoElement === null || photoElement === void 0 ? void 0 : photoElement.getAttribute('src')) || null;
+                     const descriptionElement = document.querySelector('.pv-about__summary-text .lt-line-clamp__raw-line');
+                     const description = (descriptionElement === null || descriptionElement === void 0 ? void 0 : descriptionElement.textContent) || null;
++                    const currentCompanyElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('div[aria-label="Current company"]');
++                    const currentCompany = (currentCompanyElement === null || currentCompanyElement === void 0 ? void 0 : currentCompanyElement.textContent) || null;
++                    const educationElement = profileSection === null || profileSection === void 0 ? void 0 : profileSection.querySelector('div[aria-label="Education"]');
++                    const education = (educationElement === null || educationElement === void 0 ? void 0 : educationElement.textContent) || null;
++
+                     return {
+                         fullName,
+                         title,
+                         location,
+                         photo,
+-                        description,
+-                        url
++                        url,
++                        currentCompany,
++                        education
++
+                     };
+                 });
+-                const userProfile = Object.assign(Object.assign({}, rawUserProfileData), { fullName: utils_1.getCleanText(rawUserProfileData.fullName), title: utils_1.getCleanText(rawUserProfileData.title), location: rawUserProfileData.location ? utils_1.getLocationFromText(rawUserProfileData.location) : null, description: utils_1.getCleanText(rawUserProfileData.description) });
++                const userProfile = Object.assign(Object.assign({}, rawUserProfileData), { fullName: utils_1.getCleanText(rawUserProfileData.fullName), title: utils_1.getCleanText(rawUserProfileData.title), location: rawUserProfileData.location ? utils_1.getLocationFromText(rawUserProfileData.location) : null, currentCompany: utils_1.getCleanText(rawUserProfileData.currentCompany), education: utils_1.getCleanText(rawUserProfileData.education) });
+                 utils_1.statusLog(logSection, `Got user profile data: ${JSON.stringify(userProfile)}`, scraperSessionId);
+                 utils_1.statusLog(logSection, `Parsing experiences data...`, scraperSessionId);
+                 const rawExperiencesData = yield page.$$eval('#experience-section ul > .ember-view', (nodes) => {
+@@ -350,10 +357,12 @@ class LinkedInProfileScraper {
+                     const durationInDaysWithEndDate = (startDate && endDate && !endDateIsPresent) ? utils_1.getDurationInDays(startDate, endDate) : null;
+                     const durationInDaysForPresentDate = (endDateIsPresent && startDate) ? utils_1.getDurationInDays(startDate, new Date()) : null;
+                     const durationInDays = endDateIsPresent ? durationInDaysForPresentDate : durationInDaysWithEndDate;
+-                    return Object.assign(Object.assign({}, rawExperience), { title: utils_1.getCleanText(rawExperience.title), company: utils_1.getCleanText(rawExperience.company), employmentType: utils_1.getCleanText(rawExperience.employmentType), location: (rawExperience === null || rawExperience === void 0 ? void 0 : rawExperience.location) ? utils_1.getLocationFromText(rawExperience.location) : null, startDate,
++                    return Object.assign(Object.assign({}, rawExperience), {
++                        title: utils_1.getCleanText(rawExperience.title), company: utils_1.getCleanText(rawExperience.company), employmentType: utils_1.getCleanText(rawExperience.employmentType), location: (rawExperience === null || rawExperience === void 0 ? void 0 : rawExperience.location) ? utils_1.getLocationFromText(rawExperience.location) : null, startDate,
+                         endDate,
+                         endDateIsPresent,
+-                        durationInDays, description: utils_1.getCleanText(rawExperience.description) });
++                        durationInDays, description: utils_1.getCleanText(rawExperience.description)
++                    });
+                 });
+                 utils_1.statusLog(logSection, `Got experiences data: ${JSON.stringify(experiences)}`, scraperSessionId);
+                 utils_1.statusLog(logSection, `Parsing education data...`, scraperSessionId);
+@@ -385,8 +394,10 @@ class LinkedInProfileScraper {
+                 const education = rawEducationData.map(rawEducation => {
+                     const startDate = utils_1.formatDate(rawEducation.startDate);
+                     const endDate = utils_1.formatDate(rawEducation.endDate);
+-                    return Object.assign(Object.assign({}, rawEducation), { schoolName: utils_1.getCleanText(rawEducation.schoolName), degreeName: utils_1.getCleanText(rawEducation.degreeName), fieldOfStudy: utils_1.getCleanText(rawEducation.fieldOfStudy), startDate,
+-                        endDate, durationInDays: utils_1.getDurationInDays(startDate, endDate) });
++                    return Object.assign(Object.assign({}, rawEducation), {
++                        schoolName: utils_1.getCleanText(rawEducation.schoolName), degreeName: utils_1.getCleanText(rawEducation.degreeName), fieldOfStudy: utils_1.getCleanText(rawEducation.fieldOfStudy), startDate,
++                        endDate, durationInDays: utils_1.getDurationInDays(startDate, endDate)
++                    });
+                 });
+                 utils_1.statusLog(logSection, `Got education data: ${JSON.stringify(education)}`, scraperSessionId);
+                 utils_1.statusLog(logSection, `Parsing volunteer experience data...`, scraperSessionId);
+@@ -420,8 +431,10 @@ class LinkedInProfileScraper {
+                 const volunteerExperiences = rawVolunteerExperiences.map(rawVolunteerExperience => {
+                     const startDate = utils_1.formatDate(rawVolunteerExperience.startDate);
+                     const endDate = utils_1.formatDate(rawVolunteerExperience.endDate);
+-                    return Object.assign(Object.assign({}, rawVolunteerExperience), { title: utils_1.getCleanText(rawVolunteerExperience.title), company: utils_1.getCleanText(rawVolunteerExperience.company), description: utils_1.getCleanText(rawVolunteerExperience.description), startDate,
+-                        endDate, durationInDays: utils_1.getDurationInDays(startDate, endDate) });
++                    return Object.assign(Object.assign({}, rawVolunteerExperience), {
++                        title: utils_1.getCleanText(rawVolunteerExperience.title), company: utils_1.getCleanText(rawVolunteerExperience.company), description: utils_1.getCleanText(rawVolunteerExperience.description), startDate,
++                        endDate, durationInDays: utils_1.getDurationInDays(startDate, endDate)
++                    });
+                 });
+                 utils_1.statusLog(logSection, `Got volunteer experience data: ${JSON.stringify(volunteerExperiences)}`, scraperSessionId);
+                 utils_1.statusLog(logSection, `Parsing skills data...`, scraperSessionId);
