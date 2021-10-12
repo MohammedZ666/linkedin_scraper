@@ -3,10 +3,10 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 const timeout = 60 * 1000;      //  request timeout       
-const countryCode = "bd";       //  two letter country code
-const profileMaxCount = 12;     //  maximum number of profiles to scrape
-const sessionCookieValue = '';
-const query = 'site:linkedin.com/in/ AND "javascript developer" AND "BRAC University"';
+const countryCode = "www";       //  two letter country code
+const profileMaxCount = 1;     //  maximum number of profiles to scrape
+const sessionCookieValue = 'AQEDATgdkNUEKLlIAAABfHKZ3VUAAAF8lqZhVVYARKmilJUjZjvs31Z8NjbkglT5S9vS6rXs8y5hK_4w-XPJE7uY4ta1ERehuR3UEQRuo9ky0ovRNypghYqlOc0r2d2_rcxVOY0sTEjF9e6A-w1jnGGh';
+const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
 
 // Prepare the scraper
 // Loading it in memory
@@ -61,7 +61,7 @@ const query = 'site:linkedin.com/in/ AND "javascript developer" AND "BRAC Univer
         }
         //console.log(profileJson)
 
-        fs.writeFileSync(`${saveDir}/${link.substring(28)}.json`, JSON.stringify(profileJson));
+        fs.writeFileSync(`${saveDir}/${link.substring(28)}.json`, JSON.stringify(profileJson, null, 2));
         console.log(`Profiles saved at ${saveDir}`)
     };
     // other actions...
