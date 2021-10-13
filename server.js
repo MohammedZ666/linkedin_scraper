@@ -1,12 +1,12 @@
 const { LinkedInProfileScraper } = require('linkedin-profile-scraper');
-const puppeteer = require('puppeteer-extra');
+const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-const timeout = 60 * 1000;      //  request timeout       
+const timeout = 2 * 60 * 1000;      //  request timeout       
 const countryCode = "www";       //  two letter country code
-const profileMaxCount = 10;     //  maximum number of profiles to scrape
-const sessionCookieValue = '';
-const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
+const profileMaxCount = 100;     //  maximum number of profiles to scrape
+const sessionCookieValue = 'AQEDASFq9zMEIxbIAAABfHf1AigAAAF8nAGGKFYAdzYvkXtKGM2ppF4xwdxXQdnr7ysUNXC7YR965XrRtQHvlBxwLD0ZGYiEeHpNKPn1OROQlpb_SlJbQZpCk5MB8kN3ZbR-X0Zlj85ZZJ6ny4dAhkCw';
+const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"';
 
 // Prepare the scraper
 // Loading it in memory
@@ -14,14 +14,10 @@ const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
 // Software Engineer, Web developer, Recruiters, Data Scientists, Machine Learning Engineer, Human Resource Executive, Director, Legal Advisor, Information Security, Deputy Manager, App developer, Office Assistant, Librarian, Sales Manager, Graphic Designer, Product Manager, Public Relations Copywriter, SEO Brand Strategist, Marketing, DevOps Engineer, Network Administrator, Real Estate, Civil Engineer, Mechanical Engineer, Electrical Engineer, Chemical Engineer, Maintenance Engineer, Interior Designer, Medical Writer
 
 (async () => {
-    var userAgent = require('user-agents');
-    const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-    puppeteer.use(StealthPlugin())
     const browser = await puppeteer.launch({
         headless: false,
     });
     const page = await browser.newPage();
-    await page.setUserAgent(userAgent.toString())
     await page.goto('https://www.google.com/', { timeout: timeout });
     await page.waitForSelector('input[name="q"]')
     await page.type('input[name="q"]', query);
@@ -29,14 +25,16 @@ const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
     const profileLinks = [];
     let profileScraped = 0;
     while (profileScraped < profileMaxCount) {
-
-        await page.waitForSelector(`a[href^="https://${countryCode}.linkedin.com/in/"]`)
-        let currentLinks = await page.$$eval(`a[href^="https://${countryCode}.linkedin.com/in/"]`, el => el.map(x => x.getAttribute("href")))
-        profileLinks.push(...currentLinks);
-        profileScraped += currentLinks.length;
         try {
+            await page.waitForSelector(`a[href^="https://${countryCode}.linkedin.com/in/"]`)
+            let currentLinks = await page.$$eval(`a[href^="https://${countryCode}.linkedin.com/in/"]`, el => el.map(x => x.getAttribute("href")))
+            profileLinks.push(...currentLinks);
+            profileScraped += currentLinks.length;
+            await page.waitForSelector("#pnnext")
+            //await sleepRandom()
             await page.click("#pnnext")
         } catch (error) {
+            console.log("next google selector error", error)
             break;
         }
     }
@@ -47,34 +45,57 @@ const query = 'site:linkedin.com/in/ AND "javascript developer" AND "New York"';
         profileLinks.splice(indexDelFrom)
     }
     await browser.close();
-    console.log("Total profiles demanded => ", profileLinks.length)
+    console.log("Total profiles demanded => ", profileMaxCount)
     console.log("Profile links => ", profileLinks)
     const scraper = new LinkedInProfileScraper({
         sessionCookieValue: sessionCookieValue,
-        keepAlive: true,
-        timeout: timeout
+        timeout: timeout,
     });
     const saveDir = path.join(__dirname, "profiles", "")
     if (!fs.existsSync(saveDir)) {
         fs.mkdirSync('profiles', { recursive: true });
     }
-    await scraper.setup()
-    for (let i = 0; i < profileLinks.length; i++) {
 
-        let link = profileLinks[i];
-        link = link.replace(countryCode, "www")
-        let profileJson;
+    for (let i = 0; i < profileLinks.length; i++) {
         try {
-            profileJson = await scraper.run(link)
+            let link = profileLinks[i];
+            link = link.replace(countryCode, "www")
+            if (checkIfExists(link)) continue;
+
+            let profileJson = await scraper.run(link)
+
+            if (profileJson.userProfile.fullName === null) {
+                --i;
+                continue;
+            }
+            fs.writeFileSync(`${saveDir}/${link.substring(28)}.json`, JSON.stringify(profileJson, null, 2));
+            console.log(`Profiles saved at ${saveDir}`)
         } catch (error) {
             console.log(error)
-            continue;
+            --i;
         }
-        //console.log(profileJson)
-
-        fs.writeFileSync(`${saveDir}/${link.substring(28)}.json`, JSON.stringify(profileJson, null, 2));
-        console.log(`Profiles saved at ${saveDir}`)
+        await scraper.setup()
     };
     // other actions...
     //await browser.close();
 })();
+const getRandomArbitrary = (min, max) => {
+    return parseInt(Math.random() * (max - min) + min);
+}
+const sleepRandom = async () => {
+    let ms = parseInt(getRandomArbitrary(5, 10) * 1000);
+    return await new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+const checkIfExists = (link) => {
+    const dir = `${saveDir}/${link.substring(28)}.json`
+    if (fs.existsSync(dir)) {
+        let profile = (JSON.parse(fs.readFileSync(dir, "utf8")))
+        if (profile.userProfile.fullName !== null) {
+            console.log(`profile of ${profile.userProfile.fullName} already exists .................. skipping ..................!`)
+            return true;
+        }
+    }
+    return false;
+}
