@@ -74,7 +74,7 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
             scraper = await scraperSetup(scraper)
         }
 
-
+        await sleepRandom()
     };
     // other actions...
     //await browser.close();
@@ -93,7 +93,7 @@ const sleep = async (ms) => {
     });
 }
 const sleepRandom = async () => {
-    let ms = parseInt(getRandomArbitrary(5, 10) * 1000);
+    let ms = parseInt(getRandomArbitrary(1, 10) * 1000);
     return await new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
