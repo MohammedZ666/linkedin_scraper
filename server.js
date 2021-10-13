@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const timeout = 2 * 60 * 1000;      //  request timeout       
 const countryCode = "www";       //  two letter country code
-const profileMaxCount = 100;     //  maximum number of profiles to scrape
+const profileMaxCount = 200;     //  maximum number of profiles to scrape
 const sessionCookieValue = 'AQEDASFq9zMEIxbIAAABfHf1AigAAAF8nAGGKFYAdzYvkXtKGM2ppF4xwdxXQdnr7ysUNXC7YR965XrRtQHvlBxwLD0ZGYiEeHpNKPn1OROQlpb_SlJbQZpCk5MB8kN3ZbR-X0Zlj85ZZJ6ny4dAhkCw';
 const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"';
 
@@ -15,7 +15,7 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
 
 (async () => {
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
     });
     const page = await browser.newPage();
     await page.goto('https://www.google.com/', { timeout: timeout });
@@ -40,14 +40,14 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
     }
     console.log("Total profiles scraped => ", profileScraped)
     //Deleting excess links
-    if (profileScraped > profileMaxCount) {
-        let indexDelFrom = profileMaxCount
-        profileLinks.splice(indexDelFrom)
-    }
+    // if (profileScraped > profileMaxCount) {
+    //     let indexDelFrom = profileMaxCount
+    //     profileLinks.splice(indexDelFrom)
+    // }
     await browser.close();
     console.log("Total profiles demanded => ", profileMaxCount)
     console.log("Profile links => ", profileLinks)
-    const scraper = new LinkedInProfileScraper({
+    let scraper = new LinkedInProfileScraper({
         sessionCookieValue: sessionCookieValue,
         timeout: timeout,
     });
@@ -61,26 +61,36 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
             let link = profileLinks[i];
             link = link.replace(countryCode, "www")
             if (checkIfExists(link)) continue;
-
+            scraper = await scraperSetup(scraper)
             let profileJson = await scraper.run(link)
 
-            if (profileJson.userProfile.fullName === null) {
-                --i;
-                continue;
-            }
-            fs.writeFileSync(`${saveDir}/${link.substring(28)}.json`, JSON.stringify(profileJson, null, 2));
-            console.log(`Profiles saved at ${saveDir}`)
+            if (profileJson.userProfile.fullName === null) continue;
+
+            fs.writeFileSync(`${saveDir}/${link.substring(28).replace("/", "")}.json`, JSON.stringify(profileJson, null, 2));
+            console.log(`Scraper (run): Profiles saved at ${saveDir}`)
+            scraper = await scraperSetup(scraper)
+
         } catch (error) {
             console.log(error)
-            --i;
         }
-        await scraper.setup()
+
+
     };
     // other actions...
     //await browser.close();
 })();
+const scraperSetup = async (scraper) => {
+    await sleep(3000)
+    await scraper.setup()
+    return scraper;
+}
 const getRandomArbitrary = (min, max) => {
     return parseInt(Math.random() * (max - min) + min);
+}
+const sleep = async (ms) => {
+    return await new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }
 const sleepRandom = async () => {
     let ms = parseInt(getRandomArbitrary(5, 10) * 1000);
@@ -89,7 +99,8 @@ const sleepRandom = async () => {
     });
 }
 const checkIfExists = (link) => {
-    const dir = `${saveDir}/${link.substring(28)}.json`
+    const saveDir = path.join(__dirname, "profiles", "")
+    const dir = `${saveDir}/${link.substring(28).replace("/", "")}.json`
     if (fs.existsSync(dir)) {
         let profile = (JSON.parse(fs.readFileSync(dir, "utf8")))
         if (profile.userProfile.fullName !== null) {
@@ -99,3 +110,5 @@ const checkIfExists = (link) => {
     }
     return false;
 }
+
+
