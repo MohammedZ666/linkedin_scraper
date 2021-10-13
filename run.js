@@ -7,7 +7,7 @@ let profileLinks = (JSON.parse(await readFile("filename.json", "utf8"))).links;
 
 (async () => {
     const scraper = new LinkedInProfileScraper({
-        sessionCookieValue: 'AQEDASFq9zMC3XB0AAABfHeuEDcAAAF8m7qUN1YAZ7VscnhLRdxMjn8ke1psJDKlZMHPUtI3ivs5DEhTP3MbqZGUCwFLY0a0aMVnMRJqAlQr7XCgtIZZ2IoL6sV0m7TCIb9JZUXaf-bpJhl69YQDthC_',
+        sessionCookieValue: '',
         keepAlive: false
     });
 

@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const timeout = 2 * 60 * 1000;      //  request timeout       
 const countryCode = "www";       //  two letter country code
-const profileMaxCount = 200;     //  maximum number of profiles to scrape
-const sessionCookieValue = 'AQEDASFq9zMEIxbIAAABfHf1AigAAAF8nAGGKFYAdzYvkXtKGM2ppF4xwdxXQdnr7ysUNXC7YR965XrRtQHvlBxwLD0ZGYiEeHpNKPn1OROQlpb_SlJbQZpCk5MB8kN3ZbR-X0Zlj85ZZJ6ny4dAhkCw';
+const profileMaxCount = 500;     //  maximum number of profiles to scrape
+const sessionCookieValue = 'AQEDATgZZgMDwKtsAAABfHmda6IAAAF8nanvok4AB-MNIcl44kZDSbQBBzE3O30YyYA5MuC0jRrZjZRPPte0pyBHu6hhBcEhaENCAVUWdlV0cEBhEb9NdQMemh6zIMhMZi1aE2x9Ig33hpCo6T65FPqO';
 const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"';
 
 // Prepare the scraper
@@ -50,6 +50,7 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
     let scraper = new LinkedInProfileScraper({
         sessionCookieValue: sessionCookieValue,
         timeout: timeout,
+        keepAlive: true
     });
     const saveDir = path.join(__dirname, "profiles", "")
     if (!fs.existsSync(saveDir)) {
@@ -58,20 +59,19 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
 
     for (let i = 0; i < profileLinks.length; i++) {
         try {
+            clearConsoleAndScrollbackBuffer();
             let link = profileLinks[i];
             link = link.replace(countryCode, "www")
             if (checkIfExists(link)) continue;
-            scraper = await scraperSetup(scraper)
             let profileJson = await scraper.run(link)
-
             if (profileJson.userProfile.fullName === null) continue;
-
             fs.writeFileSync(`${saveDir}/${link.substring(28).replace("/", "")}.json`, JSON.stringify(profileJson, null, 2));
             console.log(`Scraper (run): Profiles saved at ${saveDir}`)
-            scraper = await scraperSetup(scraper)
+
 
         } catch (error) {
             console.log(error)
+            scraper = await scraperSetup(scraper)
         }
 
 
@@ -111,4 +111,7 @@ const checkIfExists = (link) => {
     return false;
 }
 
-
+function clearConsoleAndScrollbackBuffer() {
+    process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
+    console.clear();
+}
