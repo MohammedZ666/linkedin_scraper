@@ -5,8 +5,8 @@ const path = require('path');
 const timeout = 2 * 60 * 1000;      //  request timeout       
 const countryCode = "www";       //  two letter country code
 const profileMaxCount = 500;     //  maximum number of profiles to scrape
-const sessionCookieValue = 'AQEDATgnBmcCv1gAAAABfHzGIF0AAAF8oNKkXVYAWMkKhvYRSywfWstEy-1sPZgnNGAtexAWoNu4UDTGfjeCQY21F07CjNAO0vL994G8j9GKu2f7baeva5VLLkVQCZRsCjxSKub4ZYga97Dv64CbZDLl';
-const query = 'site:linkedin.com/in/ AND "Real Estate Agent" AND "United States"';
+const sessionCookieValue = 'AQEDATgnXHMEuXoKAAABfH3QYGwAAAF8odzkbFYAgoZPPttSKaskF117XMQHQ8a4D0A4gretGfh9i4-X_xfHLhxSDmsLXZh4wFNevKm0-oXBgwAdsS5At7-g6kVSiLyKUEvHOUPn6p1jNZVqPry--0xW';
+const query = 'site:linkedin.com/in/ AND "Data Scientists" AND "United States"';
 
 // Prepare the scraper
 // Loading it in memory
@@ -81,7 +81,7 @@ const query = 'site:linkedin.com/in/ AND "Real Estate Agent" AND "United States"
     //await browser.close();
 })();
 const scraperSetup = async (scraper) => {
-    await sleepRandom(5, 15)
+    await sleepRandom(20, 30)
     await scraper.setup()
     return scraper;
 }
@@ -95,6 +95,7 @@ const sleep = async (ms) => {
 }
 const sleepRandom = async (from, to) => {
     let ms = parseInt(getRandomArbitrary(from, to) * 1000);
+    console.log(`Scraper run: Waiting for ${ms / 1000} seconds`)
     return await new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
