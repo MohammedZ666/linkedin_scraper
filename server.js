@@ -81,7 +81,7 @@ const query = 'site:linkedin.com/in/ AND "Real Estate Agent" AND "United States"
     //await browser.close();
 })();
 const scraperSetup = async (scraper) => {
-    await sleep(3000)
+    await sleepRandom(5, 15)
     await scraper.setup()
     return scraper;
 }
@@ -93,8 +93,8 @@ const sleep = async (ms) => {
         setTimeout(resolve, ms);
     });
 }
-const sleepRandom = async () => {
-    let ms = parseInt(getRandomArbitrary(1, 10) * 1000);
+const sleepRandom = async (from, to) => {
+    let ms = parseInt(getRandomArbitrary(from, to) * 1000);
     return await new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
