@@ -5,8 +5,8 @@ const path = require('path');
 const timeout = 2 * 60 * 1000;      //  request timeout       
 const countryCode = "www";       //  two letter country code
 const profileMaxCount = 500;     //  maximum number of profiles to scrape
-const sessionCookieValue = '';
-const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"';
+const sessionCookieValue = 'AQEDATgnBmcCv1gAAAABfHzGIF0AAAF8oNKkXVYAWMkKhvYRSywfWstEy-1sPZgnNGAtexAWoNu4UDTGfjeCQY21F07CjNAO0vL994G8j9GKu2f7baeva5VLLkVQCZRsCjxSKub4ZYga97Dv64CbZDLl';
+const query = 'site:linkedin.com/in/ AND "Real Estate Agent" AND "United States"';
 
 // Prepare the scraper
 // Loading it in memory
@@ -50,15 +50,16 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
     let scraper = new LinkedInProfileScraper({
         sessionCookieValue: sessionCookieValue,
         timeout: timeout,
-        keepAlive: true
+        keepAlive: false
     });
     const saveDir = path.join(__dirname, "profiles", "")
     if (!fs.existsSync(saveDir)) {
         fs.mkdirSync('profiles', { recursive: true });
     }
-    await scraper.setup()
+
     for (let i = 0; i < profileLinks.length; i++) {
         try {
+            scraper = await scraperSetup(scraper);
             clearConsoleAndScrollbackBuffer();
             let link = profileLinks[i];
             link = link.replace(countryCode, "www")
@@ -71,7 +72,7 @@ const query = 'site:linkedin.com/in/ AND "Software Engineer" AND "United States"
 
         } catch (error) {
             console.log(error)
-            scraper = await scraperSetup(scraper)
+            --i;
         }
 
         await sleepRandom()
